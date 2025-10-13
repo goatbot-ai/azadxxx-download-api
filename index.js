@@ -1,29 +1,29 @@
+// File: index.js
 const express = require("express");
-const app = express();
-const PORT = process.env.PORT || 3000;
+const cors = require("cors");
 
-// Middleware
+const app = express();
+app.use(cors());
 app.use(express.json());
 
-// Root route
-app.get("/", (req, res) => {
-  res.send("🚀 gemini API is running!");
-});
-
-// Example GET API
+// Gemini API route
 app.get("/api/gemini", (req, res) => {
   res.json({ message: "🚀 Gemini API proxy is running!" });
 });
 
-// Example POST API
-app.post("/api", (req, res) => {
-  res.json({
-    received: req.body,
-    info: "This is what you sent to the API"
-  });
+// যদি POST request লাগে, উদাহরণ
+app.post("/api/gemini", (req, res) => {
+  const { prompt } = req.body || {};
+  if (!prompt) {
+    return res.status(400).json({ error: "No prompt provided" });
+  }
+
+  // এখানে তুমি Gemini বা অন্য model থেকে response generate করতে পারো
+  res.json({ reply: `You sent: ${prompt}` });
 });
 
-// Start server
+// PORT configuration for Render
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`✅ gemini API running on http://localhost:${PORT}`);
+  console.log(`✅ Gemini API running on port ${PORT}`);
 });
