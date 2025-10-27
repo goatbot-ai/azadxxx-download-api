@@ -8,7 +8,6 @@ app.get("/api/download", async (req, res) => {
   if (!videoUrl) return res.json({ operator: "Azad 💥", error: "❌ URL parameter is required" });
 
   try {
-    // Dynamic API call to your main download API
     const apiRes = await axios.get(`https://azadxxx-download-api.onrender.com/api/auto?url=${encodeURIComponent(videoUrl)}`);
     if (!apiRes.data || !apiRes.data.result?.video) throw new Error("Media not found");
 
