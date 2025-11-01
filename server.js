@@ -17,7 +17,6 @@ if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
 
 app.use("/tmp", express.static(tmpDir));
 
-// Home route
 app.get("/", (req, res) => {
   res.json({
     status: true,
@@ -28,7 +27,6 @@ app.get("/", (req, res) => {
   });
 });
 
-// Main API route
 app.get("/yt", async (req, res) => {
   const url = req.query.url;
   const type = req.query.type || "mp3";
