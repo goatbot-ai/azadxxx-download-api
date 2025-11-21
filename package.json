@@ -1,7 +1,6 @@
 {
   "name": "azadxxx-download-api",
   "version": "1.0.0",
-  "description": "API for downloading content",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -12,7 +11,10 @@
   "dependencies": {
     "axios": "^1.6.5",
     "express": "^4.18.2",
-    "cheerio": "^1.0.0-rc.12"
+    "body-parser": "^1.20.2",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.3.1",
+    "spotify-url-info": "^2.6.1"
   },
   "author": "Azad",
   "license": "MIT"
