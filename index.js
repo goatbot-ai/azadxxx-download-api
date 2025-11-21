@@ -2,13 +2,18 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const SpotifyDL = require('spotidownloader');
+const cheerio = require('cheerio');
+const { getData } = require('spotify-url-info')(axios);
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 3000;
+
+// -----------------------
+// Health check
+app.get('/', (req, res) => res.send('Azadxxx Download API 🚀'));
 
 // -----------------------
 // YouTube Search
@@ -26,21 +31,21 @@ app.get('/ytsearch', async (req, res) => {
 });
 
 // -----------------------
-// YouTube Mp3 Downloader
-app.get('/ytmp3dl', async (req, res) => {
+// YouTube MP4 Downloader
+app.get('/ytmp4dl', async (req, res) => {
   const youtubeUrl = req.query.url;
   if (!youtubeUrl) return res.status(400).json({ error: "YouTube URL is required" });
 
   try {
     const apiKey = "30de256ad09118bd6b60a13de631ae2cea6e5f9d";
-    const downloadUrl = `https://p.oceansaver.in/ajax/download.php?copyright=0&format=mp3&url=${encodeURIComponent(youtubeUrl)}&api=${apiKey}`;
+    const downloadUrl = `https://p.oceansaver.in/ajax/download.php?copyright=0&format=mp4&url=${encodeURIComponent(youtubeUrl)}&api=${apiKey}`;
     const { data: downloadData } = await axios.get(downloadUrl);
 
     if (downloadData.success) {
       const { id } = downloadData;
       const progressUrl = `https://p.oceansaver.in/ajax/progress.php?id=${id}`;
       const { data: progressData } = await axios.get(progressUrl);
-      res.json(progressData);
+      res.json(progressData); // contains MP4 download link
     } else {
       res.status(400).json({ error: "Failed to initiate download" });
     }
@@ -50,7 +55,7 @@ app.get('/ytmp3dl', async (req, res) => {
 });
 
 // -----------------------
-// TikTok Downloader
+// TikTok Downloader (MP4)
 app.get('/tikdl', async (req, res) => {
   const tiktokUrl = req.query.url;
   if (!tiktokUrl) return res.status(400).json({ error: "TikTok URL is required" });
@@ -68,8 +73,7 @@ app.get('/tikdl', async (req, res) => {
       description: extractMatch(/<p class="maintext">(.*?)<\/p>/, "No description"),
       likes: extractMatch(/<div>\s*(\d+)\s*<\/div>/, "0"),
       comments: extractMatch(/<div class="d-flex flex-1 align-items-center justify-content-center">\s*<svg[^>]*><\/svg>\s*<div>\s*(\d+)\s*<\/div>/, "0"),
-      downloadLink: extractMatch(/href="(https:\/\/tikcdn\.io\/ssstik\/[^\"]+)"/, "No download link"),
-      mp3DownloadLink: extractMatch(/<a href="(https:\/\/tikcdn\.io\/ssstik\/[^\"]+)"[^>]*class="pure-button[^>]*download_link music[^>]*">/, "No MP3 link")
+      downloadLink: extractMatch(/href="(https:\/\/tikcdn\.io\/ssstik\/[^\"]+\.mp4)"/, "No MP4 link")
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -77,26 +81,21 @@ app.get('/tikdl', async (req, res) => {
 });
 
 // -----------------------
-// Spotify Downloader
+// Spotify Downloader (MP3 only)
 app.get('/spotifydl', async (req, res) => {
   const url = req.query.url;
   if (!url) return res.status(400).json({ error: "Spotify URL required" });
 
   try {
-    const track = await SpotifyDL.get(url);
-    if (track.error) return res.json({ error: track.error });
-
-    res.json({
-      trackInfo: track,
-      downloadLink: track.download
-    });
+    const track = await getData(url);
+    res.json(track); // contains track info and audio links
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // -----------------------
-// Universal Downloader
+// Universal Downloader (MP4 if available)
 app.get('/unidl', async (req, res) => {
   const videoUrl = req.query.url;
   if (!videoUrl) return res.status(400).json({ error: "Video URL required" });
@@ -114,4 +113,4 @@ app.get('/unidl', async (req, res) => {
 });
 
 // -----------------------
-app.listen(PORT, ()=>console.log(`Autodownloader API running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Azadxxx API running on port ${PORT}`));
